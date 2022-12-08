@@ -1,4 +1,4 @@
-f = __FILE__.sub(/\d+\..*/, "input")
+f = __FILE__.sub(/(day..).*/, '\1_input')
 
 Node = Struct.new(:name, :value) do
   def <<(child) = children << child
