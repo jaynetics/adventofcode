@@ -1,7 +1,7 @@
 f = __FILE__.sub(/(day..).*/, '\1_input')
 
-items = 10.times.inject([]) { |acc| acc << [0, 0] }
-histories = items.map.with_index { |pos, idx| [idx, [0, 0]] }.to_h
+items = Array.new(10) { [0, 0] }
+histories = items.map.with_index { |pos, idx| [idx, pos.dup] }.to_h
 
 move = ->(x: 0, y: 0, depth: 0) do
   item = items[depth]
