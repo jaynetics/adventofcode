@@ -1,5 +1,6 @@
 f = __FILE__.sub(/(day..).*/, '\1_input')
 
+require 'benchmark'
 require 'matrix'
 require 'bundler/inline'
 
@@ -20,11 +21,47 @@ grid.each_with_index do |e, y, x|
   end
 end
 
-# part 1
-p graph.shortest_distance(grid.index('S'), grid.index('E'))
+edges = graph.instance_variable_get(:@edges)
 
-# part 2 - meh ... breadth-first might have been better here
-p grid.each_with_index.map { |e, y, x|
-  next unless e == 'a' || e == 'S'
-  graph.shortest_distance([y, x], grid.index('E')) rescue next
-}.compact.min
+bfs_depth = ->(from_pos:, to_pos:) do
+  queue = [from_pos]
+  seen = { from_pos => true }
+  depth = 1
+
+  while !queue.empty? do
+    queue.size.times do
+      pos = queue.shift
+      edges[pos]&.each do |adj_pos,|
+        seen.key?(adj_pos) ? next : seen.store(adj_pos, true)
+
+        if adj_pos == to_pos
+          return depth
+        else
+          queue.push(adj_pos)
+        end
+      end
+    end
+    depth += 1
+  end
+end
+
+# part 1
+start = grid.index('S')
+dest = grid.index('E')
+
+Benchmark.bm do |x|
+  x.report('1. Dijkstra: ') { p graph.shortest_distance(start, dest) }
+  x.report('1. BFS: ') { p bfs_depth.(from_pos: start, to_pos: dest) }
+end
+
+# part 2
+starts = grid.each_with_index.select { |e, _y, _x| e[/a|S/] }.each(&:shift)
+
+Benchmark.bm do |x|
+  x.report('2. Dijkstra: ') do
+    p starts.map { |s| graph.shortest_distance(s, dest) rescue nil }.compact.min
+  end
+  x.report('2. BFS: ') do
+    p starts.map { |s| bfs_depth.(from_pos: s, to_pos: dest) }.compact.min
+  end
+end
