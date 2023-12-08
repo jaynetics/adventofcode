@@ -1,0 +1,10 @@
+/day*
+.bundle/
+.byebug_history
+.DS_Store
+.idea/
+.ruby-gemset
+.ruby-version
+.tags
+.tags1
+.tool-versions
